@@ -1,0 +1,156 @@
+# NUMBER GUESSING GAME
+## DESCRIPTION
+A simple game where the computer randomly selects a collection of emojis to display and prompt the user to guess which movie it represents with possible answer options.
+## HOW TO PLAY
+1. Click on the answer choice that pertains to the movie depicted in emojis.
+## TECHNOLOGIES USED
+- HTML5
+- CSS3
+- JavaScript
+## FEATURES
+- Random number generation
+- Visual feedback
+- Endless playing
+## PROJECT STRUCTURE
+The project consists of three files:
+- **index.html** - Contains the structure of the game
+- **styles.css** - Contains the styling of the game
+- **script.js** - Contains the game logic
+## CODE WALKTHROUGH
+### HTML Structure (index.html)
+The HTML file creates the user interface with
+    - A container for all game elements
+    - A heading
+    - A text area to display the randomly generated emojis
+    - Four buttons for the user to answer their guess
+    - A feedback area to display results--whether the user was correct or incorrect
+    - A next button for the user to move to the next question
+### JavaScript Logic (script.js)
+#### Data Structure (movies array)
+Example
+```javascript
+    {
+        name: "The Lion King",
+        creator: "Disney",
+        emojis: "👑🦁🌴"
+    }
+```
+The code defines an array called movies, which is a list of objects. Each object represents a Disney movie with three properties:
+
+name: The title of the movie.
+creator: The production company (always "Disney").
+emojis: A string of emojis representing the movie.
+
+#### Initialization
+```javascript
+let chosenIndex = 0;
+let chosenMovie = "";
+let optionIndexes = [];
+```
+chosenIndex: Stores the index of the correct answer.
+chosenMovie: Stores the correct movie object.
+optionIndexes: An array to store indices of the answer choices.
+
+```javascript
+generateOptions();
+```
+This function is called immediately when the script loads, starting the first round.
+
+#### getRandom() Function
+This function generates a random index within the range of available movies:
+
+```javascript
+function getRandom(){
+    return Math.floor(Math.random() * movies.length);
+}
+```
+Math.random() generates a number between 0 and 1.
+Multiplying it by movies.length ensures it falls within the valid index range.
+Math.floor() rounds it down to the nearest whole number.
+
+#### generateOptions() function
+```javascript
+function generateOptions(){
+    const outputText = document.getElementById('outputText');
+    document.getElementById('nextButton').style.display = "none";
+    document.getElementById('optionsContainer').style.display = 'grid';
+
+    outputText.innerHTML = "";
+    outputText.style.display = "none";
+
+    optionIndexes = [];
+
+    chosenIndex = getRandom();
+    chosenMovie = movies[chosenIndex];
+    console.log(chosenIndex);
+```
+Hides any previous output messages.
+Hides the "Next" button.
+Clears any previous answer choices.
+Selects a random correct answer (chosenMovie).
+Stores its index (chosenIndex).
+```javascript
+for (let i = 1; i <= 4; i++) {
+        let movieIndex = getRandom();
+        while (movieIndex === chosenIndex || optionIndexes.includes(movieIndex)){
+            movieIndex = getRandom();
+        }
+        optionIndexes.push(movieIndex);
+    }
+```
+Generates 3 incorrect random choices (ensuring no duplicates and that they are not the correct answer).
+Randomly places the correct answer among the 4 options:
+```javascript
+optionIndexes[Math.floor(Math.random() * 4)] = chosenIndex;
+```
+Calls renderOptions(optionIndexes) to display the choices.
+
+#### renderOptions(optionIndexes) function
+```javascript
+function renderOptions(optionIndexes){
+    const optionsContainer = document.getElementById('optionsContainer');
+    emojiOutput = document.getElementById('emojiOutput');
+
+    emojiOutput.innerHTML = chosenMovie.emojis;
+```
+The movie's emojis are displayed as a hint.
+```javascript
+    let html = '';
+    optionIndexes.forEach((optionIndex, index) => {
+        html += `
+        <button class="options" id="option${index}" onclick="evaluateGuess(${optionIndex})">${movies[optionIndex].name}</button>`
+    });
+
+    optionsContainer.innerHTML = html;
+}
+```
+Generates four buttons (one correct and three incorrect).
+When clicked, each button calls evaluateGuess() with its movie index
+
+#### evaluateGuess(answer) function
+```javascript
+function evaluateGuess(answer){
+    const outputText = document.getElementById('outputText');
+    document.getElementById('nextButton').style.display = "block";
+    document.getElementById('optionsContainer').style.display = 'none';
+
+    console.log('answer', answer);
+    let html = '';
+    if (Number(answer) === chosenIndex){
+        html = 'Correct!'
+    } else {
+        html = 'Incorrect.'
+    }
+    html += ` The movie is ${chosenMovie.name} by ${chosenMovie.creator}.`;
+    outputText.style.display = "block";
+    outputText.innerHTML = html;
+}
+```
+Retrieves the HTML element where the output message will be displayed (outputText).
+Shows the "Next" button (nextButton) for the next round.
+Hides the answer choices (optionsContainer).
+Checks if the user-selected answer (answer) matches chosenIndex:
+If it matches, the message "Correct!" is added to the final output message.
+If not, "Incorrect." is added.
+Displays the final output including the actual answer with the movie's name and creator.
+
